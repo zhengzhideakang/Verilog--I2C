@@ -3,7 +3,7 @@
  * @Email        :
  * @Date         : 2024-09-14 11:40:11
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2024-11-11 00:28:53
+ * @LastEditTime : 2025-12-05 10:59:11
  * @Filename     :
  * @Description  :
 */
@@ -58,5 +58,5 @@ i2cMaster_withFIFO #(
   .i2c_scl_oen               (i2c_scl_oen              ),
   .clk                       (clk                      ),
   .rstn                      (rstn                     )
-  );
+);
 //-- 实例化I2C主机与FIFO模块 ------------------------------------------------------------

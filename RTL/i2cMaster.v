@@ -3,9 +3,9 @@
  * @Email        :
  * @Date         : 2024-09-27 22:29:56
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2024-11-10 18:59:46
- * @Filename     :
- * @Description  :
+ * @LastEditTime : 2025-12-06 12:49:39
+ * @Filename     : i2cMaster.v
+ * @Description  : I2C主机驱动
 */
 
 /*
