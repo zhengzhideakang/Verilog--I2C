@@ -3,7 +3,7 @@
  * @Email        :
  * @Date         : 2024-09-27 22:29:56
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2025-12-06 12:49:39
+ * @LastEditTime : 2025-12-09 20:51:58
  * @Filename     : i2cMaster.v
  * @Description  : I2C主机驱动
 */
@@ -153,7 +153,8 @@ wire this_slave_data_addr_bytes_minus_1 = ctrl_byte[5];
 // 是否从机应答是必须的, 1(默认)表示通信中必须收到从机应答, 0表示不关心从机应答
 wire this_slave_ack_is_necessary = ctrl_byte[4];
 
-// clk频率与i2c_scl频率的比值, 如100MHz/100kHz = 1000, 新的I2C频率会在下一次传输时生效
+// clk频率与i2c_scl频率的比值, 如100MHz/100kHz = 1000, 新的I2C频率会在IDLE状态时生效,
+// 如果是新一次的传输则立即生效, 如果是页读/页写中则会在退出页读/页写直到IDLE时生效
 wire [15:0] clk_freq_div_scl_freq = fifo_dout[15:0];
 //-- FIFO数据解析 ------------------------------------------------------------
 
