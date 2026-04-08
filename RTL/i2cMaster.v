@@ -3,7 +3,7 @@
  * @Email        :
  * @Date         : 2024-09-27 22:29:56
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2025-12-09 20:51:58
+ * @LastEditTime : 2026-03-29 20:20:26
  * @Filename     : i2cMaster.v
  * @Description  : I2C主机驱动
 */
@@ -103,6 +103,10 @@
     如果是, 不ACK, 继续读数据;
     如果不满足上述条件, 则ACK + STOP, 开始下一次传输
   6.
+! 版本更新记录
+* 版本号 |  发布时间    | 修改说明
+* V1.0  | 2024-09-27 | 初始发布
+* V1.1  | 2026-01-23 | 新增 event_no_ack 信号用于指示未接收到从机应答, 此时状态会自动跳转到IDLE
 */
 
 `default_nettype none
@@ -122,6 +126,7 @@ module i2cMaster #(
   output wire        wr_data_success, // 写入成功, 高电平有效
   output wire [7 :0] rdata,           // 读出的数据
   output wire        rdata_valid,     // 读出的数据有效, 高电平有效
+  output wire        event_no_ack,    // 未接收到从机应答时拉高一个clk周期
 
   //~ I2C物理接口, 顶层inout信号分解为三个
   input  wire sda_i,
@@ -205,6 +210,7 @@ reg  receive_ack_no_goto_idle; // 未收到从机的应答, 认为通信中断, 
 wire soft_reset_begin; // scl或sda拉低超过30ms, 则判定i2c被锁住了, 或模块复位进行一次解锁
 wire soft_reset_end; // SOFT_RESET状态结束
 
+assign event_no_ack = receive_ack_no_goto_idle;
 
 reg [6:0] this_slave_device_addr; //~ 当前从机设备地址
 always @(posedge clk) begin

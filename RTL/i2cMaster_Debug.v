@@ -3,7 +3,7 @@
  * @Email        :
  * @Date         : 2024-09-27 22:29:56
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2024-11-10 18:22:02
+ * @LastEditTime : 2026-03-24 22:16:46
  * @Filename     :
  * @Description  :
 */
@@ -122,6 +122,7 @@ module i2cMaster #(
   (* mark_debug *)output wire        wr_data_success, // 写入成功, 高电平有效
   (* mark_debug *)output wire [7 :0] rdata,           // 读出的数据
   (* mark_debug *)output wire        rdata_valid,     // 读出的数据有效, 高电平有效
+  output wire        event_no_ack,    // 未接收到从机应答时拉高
 
   //~ I2C物理接口, 顶层inout信号分解为三个
   (* mark_debug *)input  wire sda_i,
@@ -154,7 +155,7 @@ wire [7:0] ctrl_byte = fifo_dout[23 : 16]; // I2C控制字节
 (* mark_debug *)wire this_slave_ack_is_necessary = ctrl_byte[4];
 
 // clk频率与i2c_scl频率的比值, 如100MHz/100kHz = 1000, 新的I2C频率会在下一次传输时生效
-wire [15:0] clk_freq_div_scl_freq = fifo_dout[15:0];
+(* mark_debug *)wire [15:0] clk_freq_div_scl_freq = fifo_dout[15:0];
 //-- FIFO数据解析 ------------------------------------------------------------
 
 
@@ -204,6 +205,7 @@ end
 (* mark_debug *)wire soft_reset_begin; // scl或sda拉低超过30ms, 则判定i2c被锁住了, 或模块复位进行一次解锁
 (* mark_debug *)wire soft_reset_end; // SOFT_RESET状态结束
 
+assign event_no_ack = receive_ack_no_goto_idle;
 
 (* mark_debug *)reg [6:0] this_slave_device_addr; //~ 当前从机设备地址
 always @(posedge clk) begin

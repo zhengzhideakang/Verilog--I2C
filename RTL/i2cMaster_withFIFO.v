@@ -3,7 +3,7 @@
  * @Email        :
  * @Date         : 2024-10-22 10:16:56
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2024-11-12 11:25:41
+ * @LastEditTime : 2026-03-29 20:21:23
  * @Filename     :
  * @Description  :
 */
@@ -12,6 +12,10 @@
 ! 模块功能: 将I2CMaster与同步FIFO封装在一起, 外部对I2C从机的读写转换为对此FIFO的写入
 * 思路:
   1.
+! 版本更新记录
+* 版本号 |  发布时间    | 修改说明
+* V1.0  | 2024-09-27 | 初始发布
+* V1.1  | 2026-01-23 | 新增 event_no_ack 信号用于指示未接收到从机应答, 此时状态会自动跳转到IDLE
 */
 
 `default_nettype none
@@ -33,6 +37,7 @@ module i2cMaster_withFIFO
   output wire        i2c_wr_data_success, // 写入成功, 高电平有效
   output wire [7 :0] i2c_rdata,           // 读出的数据
   output wire        i2c_rdata_valid,     // 读出的数据有效, 高电平有效
+  output wire        event_no_ack,    // 未接收到从机应答时拉高一个clk周期
 
   //~ I2C物理接口, 顶层inout信号分解为三个
   input  wire i2c_sda_i,
@@ -77,23 +82,24 @@ syncFIFO #(
 i2cMaster #(
   .CLK_FREQ_MHZ(CLK_FREQ_MHZ)
 ) i2cMaster_u0 (
-  .fifo_dout             (i2c_fwft_fifo_dout       ),
-  .fifo_rd_en            (i2c_fwft_fifo_rd_en      ),
-  .fifo_empty            (i2c_fwft_fifo_empty      ),
-  .device_addr           (i2c_device_addr          ),
-  .data_addr             (i2c_data_addr            ),
-  .wdata                 (i2c_wdata                ),
-  .wr_data_success       (i2c_wr_data_success      ),
-  .rdata                 (i2c_rdata                ),
-  .rdata_valid           (i2c_rdata_valid          ),
-  .sda_i                 (i2c_sda_i                ),
-  .sda_o                 (i2c_sda_o                ),
-  .sda_oen               (i2c_sda_oen              ),
-  .scl_i                 (i2c_scl_i                ),
-  .scl_o                 (i2c_scl_o                ),
-  .scl_oen               (i2c_scl_oen              ),
-  .clk                   (clk                      ),
-  .rstn                  (rstn                     )
+  .fifo_dout       (i2c_fwft_fifo_dout  ),
+  .fifo_rd_en      (i2c_fwft_fifo_rd_en ),
+  .fifo_empty      (i2c_fwft_fifo_empty ),
+  .device_addr     (i2c_device_addr     ),
+  .data_addr       (i2c_data_addr       ),
+  .wdata           (i2c_wdata           ),
+  .wr_data_success (i2c_wr_data_success ),
+  .rdata           (i2c_rdata           ),
+  .rdata_valid     (i2c_rdata_valid     ),
+  .event_no_ack    (event_no_ack        ),
+  .sda_i           (i2c_sda_i           ),
+  .sda_o           (i2c_sda_o           ),
+  .sda_oen         (i2c_sda_oen         ),
+  .scl_i           (i2c_scl_i           ),
+  .scl_o           (i2c_scl_o           ),
+  .scl_oen         (i2c_scl_oen         ),
+  .clk             (clk                 ),
+  .rstn            (rstn                )
 );
 //-- 实例化I2CMaster ------------------------------------------------------------
 
