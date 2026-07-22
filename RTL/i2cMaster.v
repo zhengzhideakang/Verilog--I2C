@@ -3,7 +3,7 @@
  * @Email        :
  * @Date         : 2024-09-27 22:29:56
  * @LastEditors  : Xu Xiaokang
- * @LastEditTime : 2026-03-29 20:20:26
+ * @LastEditTime : 2026-05-08 01:39:47
  * @Filename     : i2cMaster.v
  * @Description  : I2C主机驱动
 */
@@ -347,7 +347,17 @@ assign scl_o = 1'b0;
 * 指示I2C从机正在进行时钟拉伸, 判断逻辑:
 * 当主机释放scl时, scl应被外接上拉电阻拉高，如果此时scl仍保持低电平, 说明从机在进行scl时钟拉伸
 */
-assign i2c_slave_is_clock_stretching = (scl_clk_cnt > (scl_clk_cnt_max + 1) * 17 / 32) && (~scl_i);
+// 增加一个寄存器用于存放预计算的阈值
+reg [15:0] scl_clk_stretch_threshold;
+always @(posedge clk) begin
+    // 这里乘17除以32可以用 ( (x+1)*17 ) >> 5 实现，为简单直接写乘除、工具会优化
+    scl_clk_stretch_threshold <= (scl_clk_cnt_max + 1) * 17 / 32;
+end
+
+// 时钟拉伸判断改为使用寄存器的值
+//! 此信号造成了时序违例，为此增加了一级寄存器，上面的scl_oen_reg也容易违例，可考虑一样增加寄存器，但需要验证功能正常
+assign i2c_slave_is_clock_stretching = (scl_clk_cnt > scl_clk_stretch_threshold) && (~scl_i);
+// assign i2c_slave_is_clock_stretching = (scl_clk_cnt > (scl_clk_cnt_max + 1) * 17 / 32) && (~scl_i);
 //-- 生成scl ------------------------------------------------------------
 
 
